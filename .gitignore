@@ -1,1 +1,57 @@
-football/
+# Ignore Python virtual environment
+venv/
+.env
+*.env
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore log files
+logs/
+*.log
+
+# Ignore temporary files and OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore YOLO model files (weights)
+*.pt
+*.onnx
+*.tflite
+*.weights
+
+# Ignore dataset and large files
+datasets/
+data/
+*.zip
+*.tar
+*.tar.gz
+*.rar
+
+# Ignore images and videos (YOLO-related)
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+
+# Ignore results and output directories
+runs/
+output/
+inference/
+exp/
+
+# Ignore colab checkpoints
+colab_checkpoint/
