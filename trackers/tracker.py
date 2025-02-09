@@ -7,6 +7,7 @@ sys.path.append('../')
 from utils import getBboxWidth,getCenterOfBbox
 import cv2
 import numpy as np
+import pandas as pd
 
 
 class Tracker:
@@ -14,6 +15,16 @@ class Tracker:
     def __init__(self,modelPath):
         self.model = YOLO(modelPath)
         self.tracker = sv.ByteTrack()
+
+    def ballInterpolation(self,ballPositions):
+        ballPositions = [x.get(1,{}).get('bbox',[]) for x in ballPositions]
+        dfBallPositions = pd.DataFrame(ballPositions,columns=['x1','y1','x2','y2'])
+        dfBallPositions = dfBallPositions.interpolate()
+        dfBallPositions = dfBallPositions.bfill()
+
+        ballPositions = [{1:{'bbox':x}} for x in dfBallPositions.to_numpy().tolist()]
+
+        return ballPositions
     
     def detectFrames(self, frames):
         batchSize = 20
@@ -154,6 +165,8 @@ class Tracker:
 
     def drawAnnotations(self,videoFrames,tracks):
 
+
+
         outputVideoFrames = []
 
         for frameNum,frame in enumerate(videoFrames):
@@ -181,3 +194,5 @@ class Tracker:
             outputVideoFrames.append(frame)
         
         return outputVideoFrames
+
+    

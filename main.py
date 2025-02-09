@@ -16,6 +16,7 @@ def main():
                             readFromStubs=True,
                             stubPath='/mnt/c/Users/somes/Documents/foot-ball-analytics/stubs/track_stubs.pkl')
     
+    tracks["ball"] = tracker.ballInterpolation(tracks["ball"])
 
     # assign player assigner 
     teamAssigner = TeamAssigner()
