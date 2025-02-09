@@ -2,6 +2,11 @@ from ultralytics import YOLO
 import supervision as sv
 import pickle
 import os
+import sys
+sys.path.append('../')
+from utils import getBboxWidth,getCenterOfBbox
+import cv2
+import numpy as np
 
 
 class Tracker:
@@ -22,6 +27,7 @@ class Tracker:
         return detections
     
     def getObjectTracks(self, frames , readFromStubs = False , stubPath = None):
+
 
         if readFromStubs and stubPath is not None and os.path.exists(stubPath):
             with open(stubPath,'rb') as f:
@@ -85,3 +91,92 @@ class Tracker:
             with open(stubPath,'wb') as f:
                 pickle.dump(tracks,f)    
         return tracks
+
+    def drawEllipse(self,frame,bbox,color,trackId=None):
+        y2 = int(bbox[3])
+        xCenter, yCenter = getCenterOfBbox(bbox)
+        width = getBboxWidth(bbox)
+
+        cv2.ellipse(
+            frame,
+            center=(xCenter,y2),
+            axes=(int(width),int(0.35*width)),
+            angle = 0.0,
+            startAngle = -45,
+            endAngle = 235,
+            color = color,
+            thickness = 2,
+            lineType = cv2.LINE_4
+        )
+
+        rectangleWidth = 40
+        rectangleHeight = 20
+        x1Rect  = xCenter - rectangleWidth//2
+        x2Rect  = xCenter + rectangleWidth//2
+        y1React = (y2 - rectangleHeight//2) +15
+        y2React = (y2 + rectangleHeight//2) +15
+
+        if trackId is not None:
+
+            cv2.rectangle(frame,
+                          (int(x1Rect),int(y1React)),
+                          (int(x2Rect),int(y2React)),
+                          color,
+                          cv2.FILLED)
+            
+            x1Text = x1Rect+12
+
+            if trackId > 99:
+                x1Text -=10
+            cv2.putText(
+                frame,f"{trackId}",
+                (int(x1Text),int(y1React+15)),cv2.FONT_HERSHEY_SIMPLEX,
+                0.6,
+                (0,0,0),
+                2
+            )
+
+        return frame
+    
+    def drawTrianle(self,frame,bbox,color):
+
+        y = int(bbox[1])
+        x,_ = getCenterOfBbox(bbox)
+
+        trianglePoints = np.array([[x,y],
+                                   [x-10,y-20],
+                                   [x+10,y-20]])
+
+        cv2.drawContours(frame,[trianglePoints],0,color,cv2.FILLED)
+        cv2.drawContours(frame,[trianglePoints],0,(0,0,0),2)
+
+        return frame
+
+    def drawAnnotations(self,videoFrames,tracks):
+
+        outputVideoFrames = []
+
+        for frameNum,frame in enumerate(videoFrames):
+
+            frame = frame.copy()
+            
+            playerDict = tracks["players"][frameNum]
+            refreesDict = tracks["referees"][frameNum]
+            ballDict = tracks["ball"][frameNum]
+
+            #draw players 
+            for trackId,player in playerDict.items():
+                frame = self.drawEllipse(frame, player["bbox"],(255,255,255), trackId)
+            
+            
+            for trackID,refrees in refreesDict.items():
+                frame = self.drawEllipse(frame, refrees["bbox"],(0,255,255), None)
+            
+            # draw ball 
+            for _,ball in ballDict.items():
+                frame = self.drawTrianle(frame,ball["bbox"],(0,255,0))
+            
+            
+            outputVideoFrames.append(frame)
+        
+        return outputVideoFrames
