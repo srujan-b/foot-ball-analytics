@@ -166,7 +166,8 @@ class Tracker:
 
             #draw players 
             for trackId,player in playerDict.items():
-                frame = self.drawEllipse(frame, player["bbox"],(255,255,255), trackId)
+                color = player.get("teamColor",(255,255,255))
+                frame = self.drawEllipse(frame, player["bbox"],color, trackId)
             
             
             for trackID,refrees in refreesDict.items():
