@@ -163,7 +163,33 @@ class Tracker:
 
         return frame
 
-    def drawAnnotations(self,videoFrames,tracks):
+    def drawTeamBallControl(self,frame,frame_num,teamBallControl):
+        
+        # draw semi -transpert rectangle
+
+        overlay = frame.copy()
+
+        cv2.rectangle(overlay,(1350,850), (1900,970),(255,255,255),-1)
+        alpha =0.4
+        cv2.addWeighted(overlay,alpha,frame,1-alpha,0,frame )
+
+        teamBallControlTillFrame = teamBallControl[:frame_num+1]
+
+        team1numFrames = teamBallControlTillFrame[teamBallControlTillFrame==1].shape[0]
+        team2numFrames = teamBallControlTillFrame[teamBallControlTillFrame==2].shape[0]
+
+        team1 = team1numFrames /(team1numFrames+team2numFrames)
+        team2 = team2numFrames /(team1numFrames+team2numFrames)
+
+        cv2.putText(frame, f"Team 1 Ball Control: {team1*100:.2f}%",(1400,900),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,0),3)
+        cv2.putText(frame, f"Team 2 Ball Control: {team2*100:.2f}%",(1400,950),cv2.FONT_HERSHEY_SIMPLEX,1,(0,0,0),3)
+        
+        
+        return frame
+
+
+
+    def drawAnnotations(self,videoFrames,tracks,teamBallControl):
 
 
 
@@ -196,7 +222,12 @@ class Tracker:
             
             
             
+            # draw team ball control
+
+            frame = self.drawTeamBallControl(frame,frameNum,teamBallControl)
+
             outputVideoFrames.append(frame)
+
         
         return outputVideoFrames
 
