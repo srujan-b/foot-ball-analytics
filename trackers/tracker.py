@@ -181,6 +181,10 @@ class Tracker:
             for trackId,player in playerDict.items():
                 color = player.get("teamColor",(255,255,255))
                 frame = self.drawEllipse(frame, player["bbox"],color, trackId)
+
+                if player.get('hasBall',False):
+
+                    frame = self.drawTrianle(frame,player["bbox"],(0,0,255))
             
             
             for trackID,refrees in refreesDict.items():
@@ -189,6 +193,7 @@ class Tracker:
             # draw ball 
             for _,ball in ballDict.items():
                 frame = self.drawTrianle(frame,ball["bbox"],(0,255,0))
+            
             
             
             outputVideoFrames.append(frame)
